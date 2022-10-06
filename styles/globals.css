@@ -1,0 +1,141 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.background-custom{
+  background: linear-gradient(90deg, #cab5ff 0%, #ffea9d 100%);
+  padding: 20px;
+  border-radius:3px;
+  
+  
+}
+
+.popup_custom_right{
+  position: fixed;
+  z-index: 100;
+  bottom: 15px;
+  right: 20px;
+  background: #fff;
+  padding: 25px;
+  box-shadow: 0 1px 8px 0 #c2c2c2;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.logo_pfda_right {
+  margin-top: -60px;
+  padding-bottom: 10px;
+
+}
+
+.popup_custom{
+    position: fixed;
+    z-index: 100;
+    bottom: 15px;
+    left: 15px;
+    background: #fff;
+    padding: 25px;
+    box-shadow: 0 1px 8px 0 #c2c2c2;
+    border-radius: 5px;
+    text-align: center;
+}
+.close_pfda {
+  cursor: pointer;
+  font-size: 17px;
+  position: absolute;
+  right: 13px;
+  top:10px;
+  color: #777;
+}
+
+.logo_pfda {
+   margin-top: -15px; 
+  padding-bottom: 10px;
+}
+
+.txt_pfda {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    color: white;
+    background: black;
+  }
+}
+
+.chakra-modal__content-container .chakra-modal__content .chakra-modal__body .ck-editor__editable {
+  background: rgb(195, 195, 195);
+  border-bottom: 1px solid #c6c5c5;
+  border-left: 1px solid #c6c5c5;
+  border-right: 1px solid #c6c5c5;
+  margin-top: 0;
+  padding-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.chakra-modal__content-container .chakra-modal__content .chakra-modal__body .ck-toolbar .ck-font-family-dropdown .ck.ck-dropdown__panel {
+	max-height: 160px;
+	overflow-y: auto;
+}
+
+/* .ck-toolbar {
+	min-height: 56px;
+} */
+
+.ck-editor__editable {
+  background: rgb(195, 195, 195);
+  border-bottom: 1px solid #c6c5c5;
+  border-left: 1px solid #c6c5c5;
+  border-right: 1px solid #c6c5c5;
+  padding: 0;
+  margin: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.ck-toolbar .ck-font-family-dropdown .ck.ck-dropdown__panel {
+	max-height: 160px;
+	overflow-y: auto;
+}
+
+.ck-toolbar .ck-heading-dropdown .ck.ck-dropdown__panel {
+	max-height: 100px;
+	overflow-y: auto;
+}
+
+.ck-toolbar .ck-toolbar-dropdown .ck-dropdown__panel .ck-font-size-dropdown .ck-dropdown__panel {
+	max-height: 160px;
+	overflow-y: auto;
+}
+
+.chakra-modal__content-container .chakra-modal__content .chakra-modal__body {
+	max-height: 80vh;
+	overflow-y: auto;
+}
+
+/* .chrome-picker {
+	position: absolute;
+  z-index: 2;
+} */
+
+.preview {
+  padding: 1rem;
+  margin-top: 1rem;
+}

@@ -1,0 +1,658 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable react-hooks/exhaustive-deps */
+
+import React, { useState, useEffect } from "react";
+import {
+    Flex,
+    Container,
+    SimpleGrid,
+    Image,
+    Heading,
+    Text,
+    Stack,
+    StackDivider,
+    Icon,
+    Center,
+    Grid,
+    Accordion,
+    AccordionItem,
+    AccordionButton,
+    AccordionPanel,
+    AccordionIcon,
+    Box,
+} from "@chakra-ui/react";
+import Card from "../components/Card/Card.js";
+import CardBody from "../components/Card/CardBody.js";
+import axios from 'axios';
+import { useParams } from "react-router";
+import {
+    IoAnalyticsSharp,
+    IoLogoBitcoin,
+    IoSearchSharp,
+  } from 'react-icons/io5';
+import { ReactElement } from 'react';
+import Loader from 'react-loader-spinner';
+import ReactStars from "react-rating-stars-component";
+import { Map, GoogleApiWrapper, InfoWindow, Marker  } from 'google-maps-react';
+
+function DetailMasjid(props) {
+    const { id } = useParams();
+
+    const [loading, setLoading] = useState(true);
+    const [dataMasjid, setDataMasjid] = useState(null);
+
+    useEffect(() => {
+     
+        loadData();
+    }, []);
+
+    async function loadData() {
+        setLoading(true);
+        if(localStorage.getItem('access_token') != null) {
+            loadDataMasjid();
+        } else {
+            await axios.post(`${process.env.NEXT_PUBLIC_APP_URL}/api/access_token`)
+            .then(async (res) => {
+                localStorage.setItem('access_token', res.data.access_token);
+                loadDataMasjid();
+            })
+            .catch((err) => {
+                setLoading(false);
+            })
+        }
+    };
+
+
+
+    async function loadDataFirst() {
+        setLoading(true);
+        await axios.post(`${process.env.NEXT_PUBLIC_APP_URL}/api/access_token`)
+        .then(async (res) => {
+            localStorage.setItem('access_token', res.data.access_token);
+            loadDataMasjid();
+        })
+        .catch((err) => {
+            setLoading(false);
+        })
+    };
+
+    async function loadDataMasjid() {
+        await axios({
+            method: 'GET',
+            url: `${process.env.NEXT_PUBLIC_API_BACKEND}/api/cms/detail-masjid?id=${id}`,
+            headers: {
+                "Content-Type": `application/json`,
+                "Accept": `application/json`,
+                "Authorization": localStorage.getItem('access_token')
+            }
+        }).then(async (res) => {
+            console.log("res.data", res.data);
+            setDataMasjid(res.data);
+            setLoading(false);
+        }, (err) => {
+            setLoading(false);
+            console.log("AXIOS ERROR: ", err);
+            if (err.response) {
+                if(err.response.status == 401) {
+                    loadDataFirst();
+                }
+            }
+        });
+    };
+
+    return (
+        <Flex position="relative" mb="40px">
+            <Flex justifyContent="space-between" mb="30px" pt={{ sm: "120px", md: "120px" }}
+                py="22px"
+                mx="auto"
+                //width="1044px"
+                width="100%"
+                maxW="90%"
+                alignItems="center"
+            >
+                <Flex direction="column" w="100%" background="transparent">
+                    <Card overflowX={{ sm: "scroll", xl: "hidden" }}>
+                        <Center>
+                        {
+                            loading ?
+                            <Flex p={5}>
+                                <Loader type="Circles" color="#00BFFF" height={40} width={40} style={{position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)'}}>
+
+                                </Loader>
+                            </Flex>
+                            :
+                            <Flex direction="column" w="100%" background="transparent">
+                                <Container maxW={''} py={2}>
+                                    {/* //5xl */}
+                                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
+                                        <Flex>
+                                            <Image
+                                                rounded={'md'}
+                                                alt={'feature image'}
+                                                src={`${process.env.NEXT_PUBLIC_API_BACKEND}/` + dataMasjid.mosques.photo.replace("public", "storage")}
+                                                objectFit={'cover'}
+                                                width="100%"
+                                                maxH={300}
+                                            />
+                                        </Flex>
+                                        <Stack spacing={4}>
+                                            <Heading as='h3' size={{ sm: 'sm', lg: 'lg' }}>{ dataMasjid.mosques.name }</Heading>
+                                            <Stack direction={'row'} justify={'left'} spacing={6} mb={2}>
+                                                <Stack spacing={0} align={'center'}>
+                                                    <ReactStars size={30} value={parseFloat(dataMasjid.mosques.ratings)} edit={false} />
+                                                </Stack>
+                                            </Stack>
+                                            <Text color={'gray.500'} fontSize={{ sm: 'sm', lg: 'lg' }}>
+                                                { dataMasjid.mosques.address }
+                                            </Text>
+                                            <Stack spacing={4} divider={<StackDivider borderColor={'gray.700'}/>}>
+                                            </Stack>
+                                            <Stack direction={'row'} justify={'left'} spacing={6} mb={2}>
+                                                <Stack spacing={0} align={'center'}>
+                                                    <Text fontSize={{ sm: 'md', lg: 'xl' }} fontWeight={600}>{ dataMasjid.mosques.followers }</Text>
+                                                    <Text fontSize={{ sm: 'sm', lg: 'lg' }} color={'gray.500'}>
+                                                        Pengikut
+                                                    </Text>
+                                                </Stack>
+                                            </Stack>
+                                        </Stack>
+                                    </SimpleGrid>
+                                    
+                                    <Accordion allowToggle  mt={6}>
+                                                <AccordionItem>
+                                                    <h2>
+                                                    <AccordionButton  _expanded={{ bg: '#5C499E', color: 'white' }}>
+                                                        <Box flex='1' textAlign='left'>
+                                                       Fasilitas
+                                                        </Box>
+                                                        <AccordionIcon />
+                                                    </AccordionButton>
+                                                    </h2>
+                                                    <AccordionPanel pb={4}>
+                                                        <SimpleGrid mt={6} columns={{ base: 3, md: 8 }} spacing={2}>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.karpet != null ? dataMasjid.mosques.facilities.karpet == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_karpet.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.karpet != null ? dataMasjid.mosques.facilities.karpet == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Karpet
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.ac != null ? dataMasjid.mosques.facilities.ac == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_ac.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.ac != null ? dataMasjid.mosques.facilities.ac == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                AC
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.wifi != null ? dataMasjid.mosques.facilities.wifi == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_wifi.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.wifi != null ? dataMasjid.mosques.facilities.wifi == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Wifi
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.kopi != null ? dataMasjid.mosques.facilities.kopi == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_kopi.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.kopi != null ? dataMasjid.mosques.facilities.kopi == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Air Minum/{'\n'}Kopi Gratis
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.sarung_mukena != null ? dataMasjid.mosques.facilities.sarung_mukena == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_sarung_mukena.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.sarung_mukena != null ? dataMasjid.mosques.facilities.sarung_mukena == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Sarung/{'\n'}Mukena
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.tajil != null ? dataMasjid.mosques.facilities.tajil == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_tajil.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.tajil != null ? dataMasjid.mosques.facilities.tajil == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Ta`jil{'\n'}Ramadhan
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.tempat_mandi != null ? dataMasjid.mosques.facilities.tempat_mandi == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_tempat_mandi.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.tempat_mandi != null ? dataMasjid.mosques.facilities.tempat_mandi == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Tempat Mandi
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.closet_duduk != null ? dataMasjid.mosques.facilities.closet_duduk == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_closet_duduk.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.closet_duduk != null ? dataMasjid.mosques.facilities.closet_duduk == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Closet Duduk
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.halaman_parkir != null ? dataMasjid.mosques.facilities.halaman_parkir == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_halaman_parkir.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.halaman_parkir != null ? dataMasjid.mosques.facilities.halaman_parkir == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Halaman Parkir
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.ambulans != null ? dataMasjid.mosques.facilities.ambulans == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_ambulans.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.ambulans != null ? dataMasjid.mosques.facilities.ambulans == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Ambulans
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.jenazah != null ? dataMasjid.mosques.facilities.jenazah == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_jenazah.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.jenazah != null ? dataMasjid.mosques.facilities.jenazah == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Pengurusan{'\n'}Jenazah
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.tp_alquran != null ? dataMasjid.mosques.facilities.tp_alquran == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_tp_alquran.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.tp_alquran != null ? dataMasjid.mosques.facilities.tp_alquran == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                TP Al{'\n'}Qur`an
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.aula != null ? dataMasjid.mosques.facilities.aula == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_aula.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.aula != null ? dataMasjid.mosques.facilities.aula == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Aula{'\n'}Pernikahan
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid['mosques']['facilities']['24jam'] != null ? dataMasjid['mosques']['facilities']['24jam'] == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_duaempatjam.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid['mosques']['facilities']['24jam'] != null ? dataMasjid['mosques']['facilities']['24jam'] == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Beroperasi{'\n'}24 Jam
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.ramah_disabilitas != null ? dataMasjid.mosques.facilities.ramah_disabilitas == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_ramah_disabilitas.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.ramah_disabilitas != null ? dataMasjid.mosques.facilities.ramah_disabilitas == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Ramah{'\n'}Disabilitas
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.klinik != null ? dataMasjid.mosques.facilities.klinik == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_klinik.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.klinik != null ? dataMasjid.mosques.facilities.klinik == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Klinik
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.sarana_olahraga != null ? dataMasjid.mosques.facilities.sarana_olahraga == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_sarana_olahraga.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.sarana_olahraga != null ? dataMasjid.mosques.facilities.sarana_olahraga == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Gedung/Sarana{'\n'}Olah Raga
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.perpustakaan != null ? dataMasjid.mosques.facilities.perpustakaan == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_perpustakaan.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.perpustakaan != null ? dataMasjid.mosques.facilities.perpustakaan == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Perpustakaan
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                    <Card bg={
+                                                        dataMasjid.mosques.facilities.minimarket != null ? dataMasjid.mosques.facilities.minimarket == 1 ? '#F8F9FA' : '#666666B3' : '#666666B3'
+                                                    } p={1} borderRadius={10}>
+                                                        <Flex direction="column">
+                                                            <Center>
+                                                                <Image
+                                                                    align={'center'}
+                                                                    justifyContent={'center'}
+                                                                    alignItems={'center'}
+                                                                    rounded={'md'}
+                                                                    alt={'feature image'}
+                                                                    src={`/icon_fasilitas_minimarket.png`}
+                                                                    objectFit={'fill'}
+                                                                    w="75%"
+                                                                />
+                                                            </Center>
+                                                            <Text mt={2} align={'center'} fontSize={{ sm: '8px', lg: '10px' }} color={
+                                                                dataMasjid.mosques.facilities.minimarket != null ? dataMasjid.mosques.facilities.minimarket == 1 ? 'gray.500' : '#FFFFFF' : '#FFFFFF'
+                                                            }>
+                                                                Minimarket
+                                                            </Text>
+                                                        </Flex>
+                                                    </Card>
+                                                        </SimpleGrid>
+                                                    </AccordionPanel>
+                                                </AccordionItem>
+                                            </Accordion>
+
+                                   
+
+
+                                    <SimpleGrid mt={6} columns={{ base: 1, md: 1 }} spacing={10}>
+                                        <Card p="0px" bg={'#F8F9FA'} minH={300} maxH={300}>
+                                            <Map
+                                                google={props.google}
+                                                zoom={16}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    borderRadius: '10px'
+                                                }}
+                                                initialCenter={{
+                                                    lat: dataMasjid.mosques.latitude,
+                                                    lng: dataMasjid.mosques.longitude
+                                                }}
+                                            >
+                                                <Marker 
+                                                    name={`${dataMasjid.mosques.name}`}
+                                                    icon={{
+                                                        url: '/marker_mosque.png',
+                                                        anchor: new google.maps.Point(17, 46),
+                                                        scaledSize: new google.maps.Size(100, 100)
+                                                    }}
+                                                />
+                                            </Map>
+                                        </Card>
+                                    </SimpleGrid>
+                                </Container>
+                            </Flex>
+                        }
+                        </Center>
+                    </Card>
+                </Flex>
+            </Flex>
+        </Flex>
+    );
+}
+
+export default GoogleApiWrapper({
+    apiKey: 'AIzaSyAjDSV-6RaUaptCIl_NNKAZ5XQO_Geo_pE',
+  })(DetailMasjid);

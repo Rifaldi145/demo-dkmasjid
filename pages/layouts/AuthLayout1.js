@@ -1,0 +1,375 @@
+/* eslint-disable jsx-a11y/alt-text */
+import {
+    Box,
+    ChakraProvider,
+    Portal,
+    Flex,
+    Link as Links,
+    HStack,
+    Image,
+    Button,
+    Text,
+    useColorModeValue,
+    Drawer,
+	DrawerBody,
+	DrawerCloseButton,
+	DrawerContent,
+	DrawerOverlay,
+    useDisclosure,
+    IconButton,
+} from "@chakra-ui/react";
+import React, { createRef, useEffect, useRef, useState } from "react";
+import theme from "../../theme/theme.js";
+import { Redirect, Route, Switch, NavLink, useLocation } from "react-router-dom";
+import Beranda from "../welcome/Beranda.js";
+import SignInAdmin from "../welcome/SignInAdmin.js";
+import SignInNoHp from "../welcome/SignInNoHp.js";
+import SignUpAdmin from "../welcome/SignUpAdmin.js";
+import Ustadz from "../ustadz/Ustadz.js";
+import MasjidTerdekat from "../masjid_terdekat/MasjidTerdekat.js";
+import DetailMasjid from "../masjid_terdekat/DetailMasjid.js";
+import Informasi from "../informasi/Informasi.js";
+import { Link } from "react-router-dom";
+import { HamburgerIcon } from "@chakra-ui/icons";
+import { Separator } from "../../theme/components/Separator/Separator";
+import {
+    FaHome,
+    FaMapMarkerAlt,
+    FaSignInAlt,
+    FaGooglePlay
+} from "react-icons/fa";
+import UnAuthContent from "../../lib/UnAuthContent";
+import FooterLayout from "./FooterLayout.js";
+import MasjidDKM from "../masjid/MasjidDKM.js";
+import Faq from "../footer/Faq.js";
+
+export default function AuthLayout(props) {
+    const wrapper = createRef();
+    const mainPanel = useRef();
+	const btnRef = useRef();
+    const location = useLocation();
+
+    const [mount, setMount] = useState(false);
+    let navbarPosition = "fixed";
+    let navbarBg = useColorModeValue(
+        "linear-gradient(112.83deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.8) 110.84%)",
+        "linear-gradient(112.83deg, rgba(255, 255, 255, 0.21) 0%, rgba(255, 255, 255, 0) 110.84%)"
+    );
+    let navbarBorder = useColorModeValue(
+        "1.5px solid #FFFFFF",
+        "1.5px solid rgba(255, 255, 255, 0.31)"
+    );
+    let navbarShadow = useColorModeValue(
+        "0px 7px 23px rgba(0, 0, 0, 0.05)",
+        "none"
+    );
+    let navbarFilter = useColorModeValue(
+        "none",
+        "drop-shadow(0px 7px 23px rgba(0, 0, 0, 0.05))"
+    );
+    let navbarBackdrop = "blur(21px)";
+    let navbarIcon = useColorModeValue("gray.700", "gray.200");
+    let variantChange = "0.2s linear";
+
+    let purpleColor = "#6a5aa3";
+    //active
+    let activeBg = useColorModeValue("#B3A5DA", "gray.700");
+    let activeColor = useColorModeValue("gray.700", "white");
+    let sidebarActiveShadow = "0px 7px 11px rgba(0, 0, 0, 0.04)";
+
+    //inactive
+    let inactiveBg = useColorModeValue("white", "gray.700");
+    let inactiveColor = useColorModeValue(purpleColor, "white");
+    let sidebarInactiveShadow = "0px 0px 0px rgba(0, 0, 0, 0)";
+    const textColor = useColorModeValue("gray.600", "white");
+    
+    useEffect(() => {
+        document.body.style.overflow = "unset";
+        setMount(true);
+        return function cleanup() {};
+    }, []);
+    
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const navRef = useRef();
+    document.documentElement.dir = "ltr";
+
+    return mount && (
+        <UnAuthContent>
+            <ChakraProvider theme={theme} resetCss={false} w="100%">
+                <Flex flexDirection={'column'} ref={navRef} w="100%">
+                    <Portal containerRef={navRef}>
+                        <Flex
+                            position={navbarPosition}
+                            top="0px"
+                            left="50%"
+                            transform="translate(-50%, 0px)"
+                            background={navbarBg}
+                            boxShadow={navbarShadow}
+                            filter={navbarFilter}
+                            backdropFilter={navbarBackdrop}
+                            borderBottomRadius="4px"
+                            borderBottom="2px solid #d2d2d2"
+                            borderTop="none"
+                            mx="auto"
+                            py={5}
+                            width="100%"
+                            pr={{ sm: 4, lg: 8 }}
+                            pl={{ sm: 4, lg: 8 }}
+                            alignItems="center"
+                        >   
+             
+                            <Flex flexDirection="row" w="100%" minWidth='max-content' justify="space-between" align="center">
+                                <Flex
+                                    direction="column"
+                                    justify="center"
+                                    align="center"
+                                    w={{ sm: '40%', lg: '12.5%' }}
+                                    h={'100%'}
+                                >
+                                    <Links href={`/#/beranda`}>
+                                        <Image alignContent={'center'} src="/logo_appbar.png"/>
+                                    </Links>
+                                </Flex>
+                                {/* drawer */}
+                                <Flex display={{ sm: "flex", xl: "none" }} ref={mainPanel} alignItems="center">
+                                    <HamburgerIcon color={textColor} w="18px" h="18px" ref={btnRef} onClick={onOpen}/>
+                                    <Drawer isOpen={isOpen} onClose={onClose}  placement={document.documentElement.dir === "rtl"  } finalFocusRef={btnRef} >
+                                        <DrawerOverlay 
+                                            
+                                            background={'none'} 
+                                            
+                                        />
+                                        <DrawerContent
+                                        
+                                            bgSize="cover"
+                                            bgPosition="100%"
+                                            w="220px" maxW="220px"
+                                            ms={{sm: "4px"}}
+                                            boxShadow={"none"}
+
+                                            // my={{sm: "4px"}}
+                                            // mt={{sm: "99px"}}
+                                            // borderRadius="6px"
+                                            // overflow={'none'}
+                                        >
+                                            <DrawerCloseButton color={purpleColor} _focus={{ boxShadow: "none" }} _hover={{ boxShadow: "none" }} mt={6} bg={'#f2f2f2'}/>
+                                            <DrawerBody maxW="250px" px="10px" minH={'95%'}  >
+                                                <Box maxW="100%" h="100%">
+                                                    <Box pt={2.5} pb={2.5} background={"none"}>
+                                                        <Flex
+                                                            flexDirection="column" 
+                                                            justify="center"
+                                                            align="center"
+                                                            w={'100%'}
+                                                            h={'100%'}
+                                                            mb={"38.5%"}
+                                                        >
+                                                            {/* <Links pb={2.5} href={`/#/beranda`} w="40%">
+                                                                <Image alignContent={'center'} src="/logo_appbar.png"/>
+                                                            </Links> */}
+                                                            
+                                                        </Flex>
+                                                        <Separator  h="3px"></Separator>
+                                                    </Box>
+                                                    <Flex direction="column"
+                                                        // overflowX="auto"
+                                                        // h="100%"
+                                                        // pb="100px"
+                                                        // sx={{'::-webkit-scrollbar': {display:'none'}}}
+                                                    >
+                                                          
+                                                        <Box>
+                                                            <NavLink to="/beranda">
+                                                                <Button boxSize="initial"
+                                                                    justifyContent="flex-start"
+                                                                    alignItems="center"
+                                                                    //boxShadow={ location.pathname == "/beranda" ? sidebarActiveShadow :  sidebarInactiveShadow }
+                                                                    bg={inactiveBg}
+                                                                    transition={variantChange}
+                                                                    py={'8px'}
+                                                                    px={'8px'}
+                                                                    borderRadius="15px"
+                                                                    _hover="none"
+                                                                    w="100%"
+                                                                    _active={{bg: "inherit", transform: "none", borderColor: "transparent"}}
+                                                                    // _focus={{boxShadow: "0px 7px 11px rgba(0, 0, 0, 0.04)"}}
+                                                                    mb={2}
+                                                                >
+                                                                    <Flex flexDirection={'row'}>
+                                                                        <IconButton
+                                                                            size={'xs'}
+                                                                            variant='outline'
+                                                                            bg={ location.pathname == "/beranda" ? purpleColor : inactiveBg }
+                                                                            borderRadius={25}
+                                                                            color={ location.pathname == "/beranda" ? 'white' : inactiveColor }
+                                                                            borderWidth={0.5}
+                                                                            mr={2.5}
+                                                                            borderColor={ location.pathname == "/beranda" ? 'white' : inactiveColor }
+                                                                            icon={<FaHome/>}
+                                                                        />
+                                                                        <Text color={ location.pathname == "/beranda" ? activeColor : inactiveColor } my="auto" fontSize="md">
+                                                                            Masjid
+                                                                        </Text>
+                                                                    </Flex>
+                                                                </Button>
+                                                            </NavLink>
+                                                            <NavLink to="/masjid-terdekat">
+                                                                <Button boxSize="initial"
+                                                                    justifyContent="flex-start"
+                                                                    alignItems="center"
+                                                                    //boxShadow={ location.pathname == "/masjid-terdekat" ? sidebarActiveShadow :  sidebarInactiveShadow }
+                                                                    bg={inactiveBg}
+                                                                    transition={variantChange}
+                                                                    py={'8px'}
+                                                                    px={'8px'}
+                                                                    borderRadius="15px"
+                                                                    _hover="none"
+                                                                    w="100%"
+                                                                    _active={{bg: "inherit", transform: "none", borderColor: "transparent"}}
+                                                                    // _focus={{boxShadow: "0px 7px 11px rgba(0, 0, 0, 0.04)"}}
+                                                                    mb={2}
+                                                                >
+                                                                    <Flex flexDirection={'row'}>
+                                                                        <IconButton
+                                                                            size={'xs'}
+                                                                            variant='outline'
+                                                                            bg={ location.pathname == "/masjid-terdekat" ? purpleColor : inactiveBg }
+                                                                            borderRadius={25}
+                                                                            color={ location.pathname == "/masjid-terdekat" ? 'white' : inactiveColor }
+                                                                            borderWidth={0.5}
+                                                                            mr={2.5}
+                                                                            borderColor={ location.pathname == "/masjid-terdekat" ? 'white' : inactiveColor }
+                                                                            icon={<FaMapMarkerAlt/>}
+                                                                        />
+                                                                        <Text color={ location.pathname == "/masjid-terdekat" ? activeColor : inactiveColor } my="auto" fontSize="md">
+                                                                            Masjid Terdekat
+                                                                        </Text>
+                                                                    </Flex>
+                                                                </Button>
+                                                            </NavLink>
+                                                            <NavLink to="/masuk">
+                                                                <Button boxSize="initial"
+                                                                    justifyContent="flex-start"
+                                                                    alignItems="center"
+                                                                    //boxShadow={ location.pathname == "/masuk" ? sidebarActiveShadow :  sidebarInactiveShadow }
+                                                                    bg={ inactiveBg}
+                                                                    transition={variantChange}
+                                                                    py={'8px'}
+                                                                    px={'8px'}
+                                                                    borderRadius="15px"
+                                                                    _hover="none"
+                                                                    w="100%"
+                                                                    _active={{bg: "inherit", transform: "none", borderColor: "transparent"}}
+                                                                    // _focus={{boxShadow: "0px 7px 11px rgba(0, 0, 0, 0.04)"}}
+                                                                    mb={2}
+                                                                >
+                                                                    <Flex flexDirection={'row'}>
+                                                                        <IconButton
+                                                                            size={'xs'}
+                                                                            variant='outline'
+                                                                            bg={ location.pathname == "/masuk" ? purpleColor : inactiveBg }
+                                                                            borderRadius={25}
+                                                                            color={ location.pathname == "/masuk" ? 'white' : inactiveColor }
+                                                                            borderWidth={0.5}
+                                                                            mr={2.5}
+                                                                            borderColor={ location.pathname == "/masuk" ? 'white' : inactiveColor }
+                                                                            icon={<FaSignInAlt/>}
+                                                                        />
+                                                                        <Text color={ location.pathname == "/masuk" ? activeColor : inactiveColor } my="auto" fontSize="md">
+                                                                            Masuk
+                                                                        </Text>
+                                                                    </Flex>
+                                                                </Button>
+                                                            </NavLink>
+                                                            <Links href={`${process.env.NEXT_PUBLIC_PLAYSTORE}`} target="_blank">
+                                                                <Button boxSize="initial"
+                                                                    justifyContent="flex-start"
+                                                                    alignItems="center"
+                                                                    //boxShadow={ location.pathname == "/daftar" ? sidebarActiveShadow :  sidebarInactiveShadow }
+                                                                    bg={ inactiveBg}
+                                                                    transition={variantChange}
+                                                                    py={'8px'}
+                                                                    px={'8px'}
+                                                                    borderRadius="15px"
+                                                                    _hover="none"
+                                                                    w="100%"
+                                                                    _active={{bg: "inherit", transform: "none", borderColor: "transparent"}}
+                                                                    // _focus={{boxShadow: "0px 7px 11px rgba(0, 0, 0, 0.04)"}}
+                                                                    mb={2}
+                                                                >
+                                                                    <Flex flexDirection={'row'}>
+                                                                        <IconButton
+                                                                            size={'xs'}
+                                                                            variant='outline'
+                                                                            bg={ location.pathname == "/daftar" ? purpleColor : inactiveBg }
+                                                                            borderRadius={25}
+                                                                            color={ location.pathname == "/daftar" ? 'white' : inactiveColor }
+                                                                            borderWidth={0.5}
+                                                                            mr={2.5}
+                                                                            borderColor={ location.pathname == "/daftar" ? 'white' : inactiveColor }
+                                                                            icon={<FaGooglePlay/>}
+                                                                        />
+                                                                        <Text color={ location.pathname == "/daftar" ? activeColor : inactiveColor } my="auto" fontSize="md">
+                                                                            Daftar
+                                                                        </Text>
+                                                                    </Flex>
+                                                                </Button>
+                                                            </Links>
+                                                        </Box>
+                                                    </Flex>
+                                                </Box>
+                                            </DrawerBody>
+                                        </DrawerContent>
+                                    </Drawer>
+                                </Flex>
+                                <HStack pl={4} display={{ sm: "none", lg: "flex" }} w={'100%'}>
+                                    <Link to="/">
+                                        <Button variant="transparent-with-icon" pt={1}>
+                                            Masjid
+                                        </Button>
+                                    </Link>
+                                </HStack>
+                                <HStack display={{ sm: "none", lg: "flex" }}>
+                                    <Link to={`/masjid-terdekat`}>
+                                        <Button variant="transparent-with-icon" leftIcon={<FaMapMarkerAlt/>}>
+                                            Masjid Terdekat
+                                        </Button>
+                                    </Link>
+                                    <Link to={`/masuk`} >
+                                        <Button variant={'normal'}>
+                                            Masuk
+                                        </Button>
+                                    </Link>
+
+                                    <Links href={`${process.env.NEXT_PUBLIC_PLAYSTORE}`} target="_blank" >
+                                        <Button variant={'normal'}>
+                                            Daftar
+                                        </Button>
+                                    </Links>
+                                </HStack>
+                            </Flex>
+                        </Flex>
+                    </Portal>
+                    <Box w="100%">
+                        <Box ref={wrapper} w="100%">
+                            <Switch>
+                                <Route path="/beranda" component={Beranda}/>
+                                <Route path="/masuk" component={SignInAdmin}/>
+                                <Route path="/masuk-hp" component={SignInNoHp}/>
+                                <Route path="/daftar" component={SignUpAdmin}/>
+                                <Route path="/ustadz" component={Ustadz}/>
+                                <Route path="/informasi-ghirah" component={Informasi}/>
+                                <Route path="/masjid-terdekat" component={MasjidTerdekat}/>
+                                <Route path="/masjidDKM" component={MasjidDKM}/>
+                                <Route path="/Faq" component={Faq}/>
+                                <Route path={'/detail/:id/:name'} component={DetailMasjid}/>
+                                <Redirect from="/" to="/beranda" />
+                            </Switch>
+                        </Box>
+                    </Box>
+                    <FooterLayout/>
+                </Flex>
+            </ChakraProvider>
+        </UnAuthContent>
+    );
+}
